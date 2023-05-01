@@ -1,0 +1,172 @@
+
+<head>
+  <title>API's</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<table id="load-table">
+
+	<form id="addform">
+		<tr> 
+			<th>Task: </th>
+
+			<td>
+				<input type="text" name="task" class="form-control">
+			</td>
+			
+			<th>Status: </th>
+			
+			<td>
+				<input type="text" name="status" class="form-control">	
+			</td>
+			
+			<td>
+				<button class='btn btn-success' id='save-button'>Save</button>
+			</td>
+			
+		</tr>
+	</form>
+	
+	<th>Id</th>
+	<th>Task</th>
+	<th>Status</th>
+	<th>Edit</th>
+	<th>Delete</th>
+
+</table>
+
+
+<div class="container">
+
+
+  <div class="modal" id="myModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+      
+        <div class="modal-body">
+		
+	<h3><b><center>Update Data <button type="button" class="close" data-dismiss="modal">&times;</button></h3></b></center></br>
+	
+			<form>
+			
+				<div class="form-group">
+				
+					<input type="text" name="task" id="edit-task" class="form-control"></br>
+
+					<input type="text" name="status" id="edit-status" class="form-control">
+				
+				</div>
+
+				<button type="submit" class="btn btn-primary">Submit</button>
+				<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+			
+			</form>
+        </div>
+
+        
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+
+
+<script src="js/jquery.min.js"></script>
+
+	<script>
+
+	/////////////////// Fetching All Data ///////////////////////////////////////////////////////
+			$.ajax({
+				url : "http://localhost/rest-api/test.php",
+				type : "Get",
+				dataType: "json",
+				success : function(response)
+				{
+					if(response.status == false){
+						alert("No Data Found");
+					}else{
+						$.each(response, function(key, value){
+							$('#load-table').append(
+							"<tr>"+
+							"<td>"+ value.id + "</td>"+
+							"<td>"+ value.task + "</td>"+
+							"<td>"+ value.status + "</td>"+
+							"<td><button class='edit-btn btn btn-primary mr-2' data-eid='"+ value.id + "' data-toggle='modal' data-target='#myModal'>Edit</button></td>"+
+							"<td><button class='delete-btn btn btn-danger' data-delid='"+ value.id + "'>Delete</button></td>"+
+							"</tr>");
+						});	
+					}
+				}
+			});
+	////////////////////////// Edit Data /////////////////////////////////////////////////////
+
+		$(document).on("click",".edit-btn",function(){
+			
+			var taskid = $(this).data("eid");
+			var obj = {tid: taskid};
+			var myJSON = JSON.stringify(obj);
+			
+			$.ajax({
+				url : "http://localhost/rest-api/fetch-single-data.php",
+				type : "POST",
+				data: myJSON,
+				success : function(response)
+				{
+					$('#edit-task').val(response[0].task);
+					$('#edit-status ').val(response[0].status);
+				}
+			});
+			
+		});
+	////////////////////////// Insert Data //////////////////////////////////////////
+		
+		$('#save-button').on("click",function(e){
+			e.preventDefault();
+			var arr = $("#addform").serializeArray();
+			var obj = {};
+			
+			for(var i = 0;  i<arr.length; i++){
+				obj[arr[i].name] = arr[i].value;
+			}
+			console.log(obj);
+			
+		
+		});
+	
+
+	</script>
+	
+	<style>
+	
+	table, th, td {
+		  border: 1px solid white;
+		  border-collapse: collapse;
+		}
+	th, td {
+		  background-color: #96D4D4;
+		  padding: 10px;
+		}
+/*
+	.edit-btn {
+		background-color: #008CBA; 
+		color: black; 
+		border: 2px solid #008CBA;
+		cursor: pointer;
+		margin-right: 10px;
+	}
+	.delete-btn {
+		background-color: #f44336; 
+		color: black; 
+		border: 2px solid #f44336;
+		cursor: pointer;
+		margin-right: 10px;
+	}
+*/
+	</style>
